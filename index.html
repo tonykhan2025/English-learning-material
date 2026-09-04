@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>English Language Proficiency Diagnostic Assessment</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(225, 29, 72, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(225, 29, 72, 0); }
+    }
+    .playing-audio { animation: pulse-ring 2s infinite; }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+  <!-- TOP HEADER -->
+  <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur sticky top-0 z-50 px-4 py-3 shadow-md">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <div class="p-2 bg-indigo-600 rounded-lg text-white shadow-lg shadow-indigo-500/30">
+          <i class="fa-solid fa-graduation-cap text-lg"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-slate-100 text-base md:text-lg leading-tight">English Proficiency Assessment</h1>
+          <p class="text-xs text-slate-400">CEFR 50-Item Diagnostic & Placement Test</p>
+        </div>
+      </div>
+      <div id="header-status" class="hidden flex items-center space-x-3 text-xs md:text-sm">
+        <span class="px-3 py-1 bg-slate-800 rounded-full border border-slate-700 text-indigo-400 font-medium" id="current-section-badge">
+          Grammar
+        </span>
+        <span class="text-slate-400 font-mono font-semibold" id="question-progress-count">
+          1 / 50
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-6xl mx-auto w-full p-4 md:p-6 flex-grow flex flex-col justify-center">
+
+    <!-- SCREEN 1: WELCOME & REGISTRATION -->
+    <div id="screen-welcome" class="max-w-2xl mx-auto w-full bg-slate-800/80 border border-slate-700 rounded-2xl p-6 md:p-8 shadow-2xl backdrop-blur">
+      <div class="text-center mb-6">
+        <span class="inline-block px-3 py-1 bg-indigo-500/10 text-indigo-400 text-xs font-semibold rounded-full border border-indigo-500/20 mb-3 uppercase tracking-wider">
+          Adult & Professional Learner Assessment
+        </span>
+        <h2 class="text-2xl md:text-3xl font-bold text-white mb-2">Comprehensive Level Evaluation</h2>
+        <p class="text-slate-400 text-sm md:text-base">
+          This 50-question diagnostic evaluates your English proficiency across Grammar, Vocabulary, Reading, and Listening skills.
+        </p>
+      </div>
+
+      <!-- Student Details & Passcode Form -->
+      <div class="space-y-3 mb-6 text-left bg-slate-900/50 p-4 rounded-xl border border-slate-700/60">
+        <div class="font-semibold text-slate-200 text-xs uppercase tracking-wider mb-2 border-b border-slate-800 pb-1">
+          Student Information
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Full Name *</label>
+          <input type="text" id="student-name" required placeholder="e.g. John Doe" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Student ID / Email *</label>
+          <input type="text" id="student-id" required placeholder="e.g. student@school.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">Access Passcode *</label>
+          <input type="password" id="quiz-passcode" required placeholder="Enter access code" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-indigo-500">
+        </div>
+      </div>
+
+      <!-- Structure Breakdown -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/60 text-center">
+          <div class="text-indigo-400 font-bold text-lg md:text-xl">15 Qs</div>
+          <div class="text-xs text-slate-400 mt-0.5">Grammar</div>
+        </div>
+        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/60 text-center">
+          <div class="text-teal-400 font-bold text-lg md:text-xl">15 Qs</div>
+          <div class="text-xs text-slate-400 mt-0.5">Vocabulary</div>
+        </div>
+        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/60 text-center">
+          <div class="text-amber-400 font-bold text-lg md:text-xl">10 Qs</div>
+          <div class="text-xs text-slate-400 mt-0.5">Reading</div>
+        </div>
+        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/60 text-center">
+          <div class="text-rose-400 font-bold text-lg md:text-xl">10 Qs</div>
+          <div class="text-xs text-slate-400 mt-0.5">Listening</div>
+        </div>
+      </div>
+
+      <!-- Placement Matrix -->
+      <div class="bg-slate-900/50 rounded-xl p-4 border border-slate-700/50 mb-6 text-xs md:text-sm text-slate-300 space-y-2">
+        <div class="font-semibold text-slate-200 border-b border-slate-700/60 pb-1 mb-2">Score-Based Placement Matrix:</div>
+        <div class="flex justify-between items-center"><span class="text-slate-400">0 – 19 Points:</span> <span class="font-semibold text-emerald-400">Beginner (CEFR A1–A2)</span></div>
+        <div class="flex justify-between items-center"><span class="text-slate-400">20 – 35 Points:</span> <span class="font-semibold text-blue-400">Intermediate (CEFR B1–B2)</span></div>
+        <div class="flex justify-between items-center"><span class="text-slate-400">36 – 50 Points:</span> <span class="font-semibold text-purple-400">Advanced (CEFR C1–C2)</span></div>
+      </div>
+
+      <button id="btn-start" onclick="startQuiz()" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/30 transition-all transform hover:-translate-y-0.5 flex items-center justify-center space-x-2">
+        <span>Begin Assessment</span>
+        <i class="fa-solid fa-arrow-right text-sm"></i>
+      </button>
+    </div>
+
+    <!-- SCREEN 2: QUIZ INTERFACE -->
+    <div id="screen-quiz" class="hidden flex-col space-y-4">
+
+      <!-- Progress Bar -->
+      <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden border border-slate-700/50">
+        <div id="progress-bar" class="bg-indigo-500 h-full transition-all duration-300" style="width: 2%"></div>
+      </div>
+
+      <!-- Main Question Container -->
+      <div id="quiz-container" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- READING REFERENCE PANEL (Qs 31-40) -->
+        <div id="reading-panel" class="hidden lg:col-span-5 bg-slate-800/90 border border-amber-500/30 rounded-2xl p-5 shadow-lg lg:sticky lg:top-20">
+          <div class="flex items-center space-x-2 border-b border-slate-700 pb-3 mb-3">
+            <i class="fa-solid fa-book-open text-amber-400"></i>
+            <h3 class="font-bold text-amber-400 text-xs uppercase tracking-wider">Reading Reference Text (~110 Words)</h3>
+          </div>
+          <div class="text-slate-200 text-sm leading-relaxed space-y-3 bg-slate-900/60 p-4 rounded-xl border border-slate-700/50 max-h-[60vh] overflow-y-auto custom-scrollbar">
+            <p class="font-semibold text-slate-300 text-xs uppercase tracking-wider border-b border-slate-800 pb-1">Subject: Q3 Project Strategy & Timeline</p>
+            <p>Dear Team,</p>
+            <p>I am writing to outline our key priorities for the upcoming third quarter. Following last week’s client review, we must focus on upgrading our primary software platform to improve overall user experience.</p>
+            <p>Our design team has already drafted the preliminary interface updates. Next Monday, the engineering team will begin integration testing. Please review the attached project schedule and confirm your team’s deliverables by Friday at 5:00 PM.</p>
+            <p>We will host a brief sync call this Thursday at 10:00 AM to address any immediate concerns or resource constraints. Your prompt cooperation is greatly appreciated as we aim for a seamless roll-out.</p>
+            <p class="text-xs text-slate-400 pt-2 border-t border-slate-800">Best regards,<br><strong class="text-slate-300">Sarah Jenkins</strong>, Operations Director</p>
+          </div>
+        </div>
+
+        <!-- LISTENING AUDIO CONTROL PANEL (Qs 41-50) -->
+        <div id="listening-panel" class="hidden lg:col-span-5 bg-slate-800/90 border border-rose-500/30 rounded-2xl p-5 shadow-lg lg:sticky lg:top-20">
+          <div class="flex items-center space-x-2 border-b border-slate-700 pb-3 mb-3">
+            <i class="fa-solid fa-headphones text-rose-400"></i>
+            <h3 class="font-bold text-rose-400 text-xs uppercase tracking-wider">Listening Audio Player</h3>
+          </div>
+          <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/50 space-y-4 text-center">
+            
+            <p class="text-xs text-slate-300">Listen to the workplace announcement carefully, then answer the questions.</p>
+            
+            <button id="btn-audio-play" onclick="toggleAudioPlayback()" class="w-full py-3 bg-rose-600 hover:bg-rose-500 text-white font-semibold rounded-xl shadow-lg transition flex items-center justify-center space-x-2">
+              <i class="fa-solid fa-play" id="audio-icon"></i>
+              <span id="audio-btn-text">Listen to Announcement</span>
+            </button>
+
+            <!-- TTS Status indicator -->
+            <div id="audio-status" class="text-xs text-slate-400 italic">
+              Tap button to listen (Audio powered by Speech Engine)
+            </div>
+
+            <!-- Fallback Script Viewer -->
+            <div class="pt-2 border-t border-slate-800 text-left">
+              <button onclick="toggleTranscriptViewer()" class="text-xs text-slate-400 hover:text-slate-200 underline flex items-center space-x-1">
+                <i class="fa-solid fa-file-text"></i>
+                <span id="transcript-toggle-text">Show Audio Transcript (If audio unplayable)</span>
+              </button>
+              <div id="transcript-box" class="hidden mt-2 p-3 bg-slate-950 rounded-lg text-xs text-slate-300 leading-relaxed border border-slate-800 max-h-40 overflow-y-auto">
+                "Good morning team. Quick update regarding our annual software transition. The legacy client portal will be officially shut down this Friday at midnight. All customer data has already been migrated to our new cloud platform. Beginning next Monday, all support agents must use the new dashboard to record client tickets. If you experience login difficulties, contact IT support immediately at extension 404. Also, remember that mandatory training sessions will be held in Conference Room B tomorrow at 2:00 PM. Thank you for your cooperation."
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- QUESTION & OPTIONS PANEL -->
+        <div id="question-panel" class="lg:col-span-12 bg-slate-800/80 border border-slate-700 rounded-2xl p-6 shadow-xl backdrop-blur transition-all">
+          
+          <div class="flex justify-between items-center mb-4">
+            <span id="badge-difficulty" class="text-xs font-semibold px-2.5 py-1 rounded-md bg-slate-700 text-slate-300 border border-slate-600">
+              Beginner Level
+            </span>
+            <button onclick="toggleBookmark()" id="btn-bookmark" class="text-slate-400 hover:text-amber-400 transition-colors text-sm flex items-center space-x-1">
+              <i class="fa-regular fa-bookmark" id="bookmark-icon"></i>
+              <span id="bookmark-text">Flag Question</span>
+            </button>
+          </div>
+
+          <h3 id="question-text" class="text-lg md:text-xl font-medium text-white mb-6 leading-snug">
+            Question text loading...
+          </h3>
+
+          <!-- Options Grid -->
+          <div id="options-container" class="space-y-3 mb-6">
+            <!-- Dynamic Options -->
+          </div>
+
+          <!-- Navigation Controls -->
+          <div class="flex justify-between items-center pt-4 border-t border-slate-700/60">
+            <button id="btn-prev" onclick="prevQuestion()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-xl text-sm font-medium transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center space-x-2">
+              <i class="fa-solid fa-chevron-left text-xs"></i>
+              <span>Previous</span>
+            </button>
+
+            <button id="btn-next" onclick="nextQuestion()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-semibold transition flex items-center space-x-2 shadow-md">
+              <span id="btn-next-label">Next</span>
+              <i class="fa-solid fa-chevron-right text-xs" id="btn-next-icon"></i>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- SCREEN 3: RESULTS DASHBOARD -->
+    <div id="screen-results" class="hidden max-w-4xl mx-auto w-full space-y-6">
+      
+      <!-- Primary Result Header -->
+      <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-6 md:p-8 shadow-xl text-center relative overflow-hidden">
+        <div class="inline-block p-3 rounded-full bg-indigo-500/10 text-indigo-400 mb-3 border border-indigo-500/20">
+          <i class="fa-solid fa-award text-2xl"></i>
+        </div>
+        <h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Assessment Completed</h2>
+        <p class="text-slate-400 text-sm mb-6">Diagnostic evaluation based on all 50 test items</p>
+
+        <!-- Final Placement Card -->
+        <div id="placement-card" class="max-w-md mx-auto p-5 rounded-2xl border mb-6 text-center shadow-lg bg-slate-900/80 border-indigo-500/50">
+          <p class="text-xs uppercase tracking-wider text-slate-400 font-semibold mb-1">Assessed Level Placement</p>
+          <div id="res-level-name" class="text-3xl font-extrabold text-indigo-400 mb-2">Intermediate (CEFR B1–B2)</div>
+          <div id="res-score-badge" class="text-sm font-medium text-slate-300">
+            Total Score: <span id="res-score-num" class="font-bold text-white">30</span> / 50 (<span id="res-score-pct">60</span>%)
+          </div>
+        </div>
+
+        <p id="res-teacher-feedback" class="text-slate-300 text-sm leading-relaxed max-w-2xl mx-auto italic bg-slate-900/50 p-4 rounded-xl border border-slate-700/50">
+          Teacher feedback text loading...
+        </p>
+      </div>
+
+      <!-- Section Skill Summary Overview Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Grammar -->
+        <div class="bg-slate-800/80 border border-slate-700 p-4 rounded-xl text-center">
+          <div class="flex justify-between items-center text-slate-400 text-xs font-semibold mb-2">
+            <span>GRAMMAR</span>
+            <span id="score-grammar-ratio">0 / 15</span>
+          </div>
+          <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden mb-2">
+            <div id="bar-grammar" class="bg-indigo-500 h-full w-0 transition-all duration-500"></div>
+          </div>
+          <span id="pct-grammar" class="text-lg font-bold text-white">0%</span>
+        </div>
+
+        <!-- Vocabulary -->
+        <div class="bg-slate-800/80 border border-slate-700 p-4 rounded-xl text-center">
+          <div class="flex justify-between items-center text-slate-400 text-xs font-semibold mb-2">
+            <span>VOCABULARY</span>
+            <span id="score-vocab-ratio">0 / 15</span>
+          </div>
+          <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden mb-2">
+            <div id="bar-vocab" class="bg-teal-500 h-full w-0 transition-all duration-500"></div>
+          </div>
+          <span id="pct-vocab" class="text-lg font-bold text-white">0%</span>
+        </div>
+
+        <!-- Reading -->
+        <div class="bg-slate-800/80 border border-slate-700 p-4 rounded-xl text-center">
+          <div class="flex justify-between items-center text-slate-400 text-xs font-semibold mb-2">
+            <span>READING</span>
+            <span id="score-reading-ratio">0 / 10</span>
+          </div>
+          <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden mb-2">
+            <div id="bar-reading" class="bg-amber-500 h-full w-0 transition-all duration-500"></div>
+          </div>
+          <span id="pct-reading" class="text-lg font-bold text-white">0%</span>
+        </div>
+
+        <!-- Listening -->
+        <div class="bg-slate-800/80 border border-slate-700 p-4 rounded-xl text-center">
+          <div class="flex justify-between items-center text-slate-400 text-xs font-semibold mb-2">
+            <span>LISTENING</span>
+            <span id="score-listening-ratio">0 / 10</span>
+          </div>
+          <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden mb-2">
+            <div id="bar-listening" class="bg-rose-500 h-full w-0 transition-all duration-500"></div>
+          </div>
+          <span id="pct-listening" class="text-lg font-bold text-white">0%</span>
+        </div>
+      </div>
+
+      <!-- DETAILED SECTION-BY-SECTION ANALYSIS & DEVELOPMENT PLAN -->
+      <div class="pt-4 border-t border-slate-800">
+        <h3 class="text-xl font-bold text-white mb-2 flex items-center space-x-2">
+          <i class="fa-solid fa-chart-pie text-indigo-400"></i>
+          <span>Detailed Skill Breakdown & Areas to Develop</span>
+        </h3>
+        <p class="text-xs text-slate-400 mb-6">Review your section performance, specific questions missed, and targeted skill development focus.</p>
+
+        <!-- Dynamic Container where each section card is generated -->
+        <div id="section-breakdown-container" class="space-y-6">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex justify-center space-x-4 pt-6">
+        <button onclick="restartQuiz()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-semibold transition flex items-center space-x-2 shadow-lg shadow-indigo-600/30">
+          <i class="fa-solid fa-rotate-right"></i>
+          <span>Retake Assessment</span>
+        </button>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-800 py-4 text-center text-xs text-slate-500">
+    English Proficiency Placement System &bull; 50-Item Diagnostic Assessment (Grammar, Vocabulary, Reading, Listening)
+  </footer>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    const quizData = [
+      // --- GRAMMAR (Questions 1 - 15) ---
+      { id: 1, sec: "Grammar", diff: "Beginner", topic: "Present Simple Tenses (Subject-Verb Agreement)", q: "She _____ at a software technology company in London.", opts: ["work", "works", "working", "is work"] },
+      { id: 2, sec: "Grammar", diff: "Beginner", topic: "Past Tense of 'To Be' (Plural Subjects)", q: "They _____ present at the quarterly business meeting yesterday.", opts: ["wasn't", "weren't", "are not", "isn't"] },
+      { id: 3, sec: "Grammar", diff: "Beginner", topic: "Prepositions of Place (Flat Surfaces)", q: "Please place the confidential files _____ the desk.", opts: ["on", "at", "in", "to"] },
+      { id: 4, sec: "Grammar", diff: "Beginner", topic: "Modal Verbs for Ability ('Can')", q: "Excuse me, _____ you speak English fluently?", opts: ["does", "can", "are", "have"] },
+      { id: 5, sec: "Grammar", diff: "Beginner", topic: "Indefinite Articles ('a' vs 'an')", q: "We need to purchase _____ new printer for the office.", opts: ["a", "an", "the", "some"] },
+      { id: 6, sec: "Grammar", diff: "Intermediate", topic: "Present Perfect Continuous Tense", q: "Our team _____ on this project since last January.", opts: ["worked", "has been working", "is working", "was worked"] },
+      { id: 7, sec: "Grammar", diff: "Intermediate", topic: "First Conditional Structures", q: "If we increase our market budget, sales _____ rapidly.", opts: ["would increase", "will increase", "increased", "have increased"] },
+      { id: 8, sec: "Grammar", diff: "Intermediate", topic: "Future Passive Voice", q: "The revised financial contract _____ by the legal director tomorrow.", opts: ["will sign", "is signing", "will be signed", "signs"] },
+      { id: 9, sec: "Grammar", diff: "Intermediate", topic: "Verb Patterns (Gerunds after 'Suggest')", q: "He suggested _____ the client presentation until next Tuesday.", opts: ["to postpone", "postponing", "postpone", "postponed"] },
+      { id: 10, sec: "Grammar", diff: "Intermediate", topic: "Possessive Relative Pronouns ('Whose')", q: "The manager, _____ office is on the third floor, approved the proposal.", opts: ["who", "whom", "whose", "which"] },
+      { id: 11, sec: "Grammar", diff: "Advanced", topic: "Third Conditional Inversion", q: "Had we conducted thorough market research, we _____ that mistake.", opts: ["would not make", "will not have made", "would not have made", "did not make"] },
+      { id: 12, sec: "Grammar", diff: "Advanced", topic: "Negative Adverbial Inversion ('Seldom')", q: "Seldom _____ such an exceptional level of dedication from a new contractor.", opts: ["we have seen", "have we seen", "we saw", "did we seeing"] },
+      { id: 13, sec: "Grammar", diff: "Advanced", topic: "Subjunctive Mood for Requests/Mandates", q: "The CEO requested that the preliminary audit _____ completed by midnight.", opts: ["is", "be", "was", "would be"] },
+      { id: 14, sec: "Grammar", diff: "Advanced", topic: "Perfect Participle Clauses ('Having been')", q: "_____ disappointed by the initial survey results, the team reworked the strategy.", opts: ["Being", "Having been", "To be", "Were"] },
+      { id: 15, sec: "Grammar", diff: "Advanced", topic: "Conjunctive Adverbs ('Nevertheless')", q: "The project is on schedule; _____, we must remain vigilant regarding expenditures.", opts: ["nevertheless", "whereas", "despite", "consequently"] },
+
+      // --- VOCABULARY (Questions 16 - 30) ---
+      { id: 16, sec: "Vocabulary", diff: "Beginner", topic: "Basic Workplace Nouns", q: "We need to schedule a short _____ to discuss the weekly targets.", opts: ["meeting", "paper", "door", "lunchroom"] },
+      { id: 17, sec: "Vocabulary", diff: "Beginner", topic: "Digital Communication Vocabulary", q: "The client sent an urgent _____ regarding the invoice total.", opts: ["letterbox", "email", "desk", "building"] },
+      { id: 18, sec: "Vocabulary", diff: "Beginner", topic: "Time Designation Abbreviations", q: "The final deadline for submitting the report is 5:00 _____ today.", opts: ["AM", "PM", "O'clock", "Hours"] },
+      { id: 19, sec: "Vocabulary", diff: "Beginner", topic: "Action Verbs for Correspondence", q: "Could you please _____ the documents to my email inbox?", opts: ["send", "walk", "speak", "cook"] },
+      { id: 20, sec: "Vocabulary", diff: "Beginner", topic: "Commercial Location Terminology", q: "Our corporate office is located in the central business _____.", opts: ["district", "home", "room", "street"] },
+      { id: 21, sec: "Vocabulary", diff: "Intermediate", topic: "Cross-Functional Collaboration Terms", q: "The two departments agreed to _____ closely on the new marketing campaign.", opts: ["collaborate", "compete", "hesitate", "eliminate"] },
+      { id: 22, sec: "Vocabulary", diff: "Intermediate", topic: "Operational Productivity Terms", q: "Improving workplace automation significantly boosted overall _____", opts: ["efficiency", "reluctance", "fraction", "doubt"] },
+      { id: 23, sec: "Vocabulary", diff: "Intermediate", topic: "Strategic Goal Vocabulary", q: "The board set a clear strategic _____ to expand international sales by 15%.", opts: ["objective", "obstacle", "objection", "accident"] },
+      { id: 24, sec: "Vocabulary", diff: "Intermediate", topic: "Financial Constraint Verbs", q: "Due to budget constraints, management had to _____ non-essential spending.", opts: ["restrict", "expand", "celebrate", "encourage"] },
+      { id: 25, sec: "Vocabulary", diff: "Intermediate", topic: "Career Advancement Terminology", q: "She received a major _____ after successfully leading the department merger.", opts: ["promotion", "demotion", "departure", "penalty"] },
+      { id: 26, sec: "Vocabulary", diff: "Advanced", topic: "Risk Mitigation Terminology", q: "Risk management plans were enacted to _____ potential financial losses.", opts: ["mitigate", "aggravate", "procrastinate", "instigate"] },
+      { id: 27, sec: "Vocabulary", diff: "Advanced", topic: "High-Level Financial Adjectives", q: "The consultant offered a _____ proposal that guaranteed significant returns.", opts: ["lucrative", "redundant", "negligible", "tentative"] },
+      { id: 28, sec: "Vocabulary", diff: "Advanced", topic: "Governance & Consensus Terms", q: "After hours of deliberation, the board reached a unanimous _____.", opts: ["consensus", "discrepancy", "controversy", "dissent"] },
+      { id: 29, sec: "Vocabulary", diff: "Advanced", topic: "Priority Assessment Adjectives", q: "It is _____ that all executive directors attend the annual summit.", opts: ["paramount", "superficial", "trivial", "optional"] },
+      { id: 30, sec: "Vocabulary", diff: "Advanced", topic: "Process Facilitation Verbs", q: "The new software update aims to _____ seamless communication across branches.", opts: ["facilitate", "hinder", "complicate", "impair"] },
+
+      // --- READING COMPREHENSION (Questions 31 - 40) ---
+      { id: 31, sec: "Reading", diff: "Beginner", topic: "Main Idea Identification", q: "What is the main topic of Sarah Jenkins' email?", opts: ["Planning a company holiday party", "Outlining Q3 priorities and platform upgrades", "Announcing staff layoffs", "Ordering new computer hardware"] },
+      { id: 32, sec: "Reading", diff: "Beginner", topic: "Deadline & Specific Fact Extraction", q: "When must team members confirm their project deliverables?", opts: ["This Thursday at 10:00 AM", "Next Monday morning", "Friday at 5:00 PM", "Last week during client review"] },
+      { id: 33, sec: "Reading", diff: "Beginner", topic: "Schedule Scanning & Time Recall", q: "When is the sync call scheduled to take place?", opts: ["Next Monday", "This Thursday at 10:00 AM", "Friday evening", "Last week"] },
+      { id: 34, sec: "Reading", diff: "Intermediate", topic: "Departmental Role Scanning", q: "Which team will begin integration testing next Monday?", opts: ["The design team", "The operations team", "The engineering team", "The executive team"] },
+      { id: 35, sec: "Reading", diff: "Intermediate", topic: "Status Verification Reading", q: "What has the design team already completed?", opts: ["Integration testing", "Preliminary interface updates", "Final software roll-out", "Client review meetings"] },
+      { id: 36, sec: "Reading", diff: "Intermediate", topic: "Contextual Vocabulary Meaning ('Preliminary')", q: "In the text, the word 'preliminary' most closely means:", opts: ["Final and non-negotiable", "Initial or introductory", "Outdated and obsolete", "Expensive and costly"] },
+      { id: 37, sec: "Reading", diff: "Intermediate", topic: "Purpose & Objective Identification", q: "What is the primary objective of the Thursday sync call?", opts: ["To sign new client contracts", "To address immediate concerns or resource constraints", "To celebrate project completion", "To train staff on new software"] },
+      { id: 38, sec: "Reading", diff: "Advanced", topic: "Business Cause-and-Effect Inference", q: "What primary operational motivation prompted this Q3 upgrade?", opts: ["Feedback from last week's client review", "Direct orders from foreign investors", "A system breakdown during Q2", "A legal requirement"] },
+      { id: 39, sec: "Reading", diff: "Advanced", topic: "Author Tone & Style Analysis", q: "What is the professional tone of Sarah Jenkins' email?", opts: ["Informal and apologetic", "Directive, structured, and professional", "Critical and punitive", "Hesitant and uncertain"] },
+      { id: 40, sec: "Reading", diff: "Advanced", topic: "Strategic Project Inference", q: "What can be inferred about the project's success requirement?", opts: ["It depends heavily on cross-team coordination and meeting strict milestones", "It requires hiring outside software consultants", "It will delay all Q4 projects", "It will be completed entirely by the design team"] },
+
+      // --- LISTENING COMPREHENSION (Questions 41 - 50) ---
+      { id: 41, sec: "Listening", diff: "Beginner", topic: "Auditory Fact Recall (Systems)", q: "According to the audio announcement, what will be shut down this Friday at midnight?", opts: ["The main corporate office", "The legacy client portal", "The phone helpline", "The employee cafeteria"] },
+      { id: 42, sec: "Listening", diff: "Beginner", topic: "Auditory Location Recall", q: "Where will the mandatory training sessions take place tomorrow?", opts: ["In Conference Room B", "At the main auditorium", "Online via video call", "In the IT department"] },
+      { id: 43, sec: "Listening", diff: "Beginner", topic: "Auditory Time Specifics", q: "What time will the training sessions start tomorrow?", opts: ["9:00 AM", "12:00 PM", "2:00 PM", "5:00 PM"] },
+      { id: 44, sec: "Listening", diff: "Intermediate", topic: "Spoken Operational Directives", q: "What are support agents required to do starting next Monday?", opts: ["Submit weekly printed reports", "Use the new dashboard to record client tickets", "Take an employee evaluation test", "Work remotely from home"] },
+      { id: 45, sec: "Listening", diff: "Intermediate", topic: "Auditory Status Verification", q: "What has already happened to the customer data?", opts: ["It was permanently deleted", "It has already been migrated to our new cloud platform", "It is waiting for legal review", "It is being printed for backup"] },
+      { id: 46, sec: "Listening", diff: "Intermediate", topic: "Numerical & Extension Detail Listening", q: "Which phone extension should staff call if they have login issues?", opts: ["Extension 101", "Extension 404", "Extension 911", "Extension 200"] },
+      { id: 47, sec: "Listening", diff: "Intermediate", topic: "Gist & Purpose Auditory Comprehension", q: "What is the primary objective of this spoken announcement?", opts: ["To announce employee bonuses", "To explain transition deadlines and training for the new system", "To warn about server fire hazard", "To introduce a new manager"] },
+      { id: 48, sec: "Listening", diff: "Advanced", topic: "Spoken Implication & Risk Deduction", q: "What can be inferred about support agents who fail to attend tomorrow's training?", opts: ["They will be fired immediately", "They may struggle to use the new dashboard on Monday", "They will not be allowed to take phone calls", "They will receive lower pay"] },
+      { id: 49, sec: "Listening", diff: "Advanced", topic: "Speaker Demeanor & Tone Recognition", q: "What is the tone of the announcement speaker?", opts: ["Panicked and urgent", "Professional, clear, and instruction-oriented", "Casual and humorous", "Sarcastic and annoyed"] },
+      { id: 50, sec: "Listening", diff: "Advanced", topic: "Auditory Sequence of Events", q: "Which task was completed prior to making this announcement?", opts: ["Conducting Conference Room B training", "Shutting down the client portal", "Migrating customer data to the cloud", "Resolving IT extension 404 calls"] }
+    ];
+
+    const audioTranscriptText = "Good morning team. Quick update regarding our annual software transition. The legacy client portal will be officially shut down this Friday at midnight. All customer data has already been migrated to our new cloud platform. Beginning next Monday, all support agents must use the new dashboard to record client tickets. If you experience login difficulties, contact IT support immediately at extension 404. Also, remember that mandatory training sessions will be held in Conference Room B tomorrow at 2:00 PM. Thank you for your cooperation.";
+
+    // APP STATE
+    let currentIdx = 0;
+    let userAnswers = new Array(quizData.length).fill(null);
+    let bookmarked = new Array(quizData.length).fill(false);
+    let isPlayingAudio = false;
+    let gradedResults = null;
+
+    // DOM ELEMENTS
+    const screenWelcome = document.getElementById('screen-welcome');
+    const screenQuiz = document.getElementById('screen-quiz');
+    const screenResults = document.getElementById('screen-results');
+    const headerStatus = document.getElementById('header-status');
+
+    function startQuiz() {
+      const name = document.getElementById('student-name').value.trim();
+      const id = document.getElementById('student-id').value.trim();
+      const passcode = document.getElementById('quiz-passcode').value.trim();
+
+      if (!name || !id || !passcode) {
+        alert("Please enter your Full Name, Student ID / Email, and Access Passcode before starting the test.");
+        return;
+      }
+
+      screenWelcome.classList.add('hidden');
+      screenQuiz.classList.remove('hidden');
+      screenQuiz.classList.add('flex');
+      headerStatus.classList.remove('hidden');
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const q = quizData[currentIdx];
+
+      document.getElementById('current-section-badge').textContent = q.sec;
+      document.getElementById('question-progress-count').textContent = `${currentIdx + 1} / ${quizData.length}`;
+      document.getElementById('progress-bar').style.width = `${((currentIdx + 1) / quizData.length) * 100}%`;
+
+      const readingPanel = document.getElementById('reading-panel');
+      const listeningPanel = document.getElementById('listening-panel');
+      const questionPanel = document.getElementById('question-panel');
+
+      if (q.sec === "Reading") {
+        readingPanel.classList.remove('hidden');
+        listeningPanel.classList.add('hidden');
+        questionPanel.classList.remove('lg:col-span-12');
+        questionPanel.classList.add('lg:col-span-7');
+      } else if (q.sec === "Listening") {
+        readingPanel.classList.add('hidden');
+        listeningPanel.classList.remove('hidden');
+        questionPanel.classList.remove('lg:col-span-12');
+        questionPanel.classList.add('lg:col-span-7');
+      } else {
+        readingPanel.classList.add('hidden');
+        listeningPanel.classList.add('hidden');
+        questionPanel.classList.remove('lg:col-span-7');
+        questionPanel.classList.add('lg:col-span-12');
+      }
+
+      const badgeDiff = document.getElementById('badge-difficulty');
+      badgeDiff.textContent = `${q.sec} • ${q.diff} Level`;
+      if(q.diff === "Beginner") badgeDiff.className = "text-xs font-semibold px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+      else if(q.diff === "Intermediate") badgeDiff.className = "text-xs font-semibold px-2.5 py-1 rounded-md bg-blue-500/10 text-blue-400 border border-blue-500/20";
+      else badgeDiff.className = "text-xs font-semibold px-2.5 py-1 rounded-md bg-purple-500/10 text-purple-400 border border-purple-500/20";
+
+      const icon = document.getElementById('bookmark-icon');
+      const text = document.getElementById('bookmark-text');
+      if (bookmarked[currentIdx]) {
+        icon.className = "fa-solid fa-bookmark text-amber-400";
+        text.textContent = "Flagged";
+        text.className = "text-amber-400 font-medium";
+      } else {
+        icon.className = "fa-regular fa-bookmark text-slate-400";
+        text.textContent = "Flag Question";
+        text.className = "text-slate-400";
+      }
+
+      document.getElementById('question-text').innerHTML = `<span class="text-indigo-400 font-bold mr-1">Q${q.id}.</span> ${q.q}`;
+
+      const container = document.getElementById('options-container');
+      container.innerHTML = '';
+
+      q.opts.forEach((opt, oIdx) => {
+        const isSelected = userAnswers[currentIdx] === oIdx;
+        const btn = document.createElement('button');
+        btn.onclick = () => selectOption(oIdx);
+        btn.className = `w-full text-left p-4 rounded-xl border transition-all flex items-center justify-between ${
+          isSelected 
+            ? 'bg-indigo-600/20 border-indigo-500 text-white font-medium shadow-md ring-1 ring-indigo-500' 
+            : 'bg-slate-900/50 border-slate-700/70 text-slate-300 hover:bg-slate-700/50 hover:border-slate-600'
+        }`;
+
+        btn.innerHTML = `
+          <div class="flex items-center space-x-3">
+            <span class="w-7 h-7 rounded-lg text-xs font-bold flex items-center justify-center ${
+              isSelected ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-400 border border-slate-700'
+            }">
+              ${String.fromCharCode(65 + oIdx)}
+            </span>
+            <span class="text-sm md:text-base">${opt}</span>
+          </div>
+          ${isSelected ? '<i class="fa-solid fa-circle-check text-indigo-400"></i>' : ''}
+        `;
+        container.appendChild(btn);
+      });
+
+      document.getElementById('btn-prev').disabled = currentIdx === 0;
+
+      const btnNextLabel = document.getElementById('btn-next-label');
+      const btnNextIcon = document.getElementById('btn-next-icon');
+      if (currentIdx === quizData.length - 1) {
+        btnNextLabel.textContent = "Submit Test";
+        btnNextIcon.className = "fa-solid fa-paper-plane text-xs";
+      } else {
+        btnNextLabel.textContent = "Next";
+        btnNextIcon.className = "fa-solid fa-chevron-right text-xs";
+      }
+    }
+
+    function selectOption(oIdx) {
+      userAnswers[currentIdx] = oIdx;
+      renderQuestion();
+    }
+
+    function toggleBookmark() {
+      bookmarked[currentIdx] = !bookmarked[currentIdx];
+      renderQuestion();
+    }
+
+    function nextQuestion() {
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      isPlayingAudio = false;
+      updateAudioButtonUI();
+
+      if (currentIdx < quizData.length - 1) {
+        currentIdx++;
+        renderQuestion();
+      } else {
+        calculateResults();
+      }
+    }
+
+    function prevQuestion() {
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      isPlayingAudio = false;
+      updateAudioButtonUI();
+
+      if (currentIdx > 0) {
+        currentIdx--;
+        renderQuestion();
+      }
+    }
+
+    function toggleAudioPlayback() {
+      if (!('speechSynthesis' in window)) {
+        alert("Text-to-speech audio is not supported on this browser. Please click 'Show Audio Transcript' to read the listening text.");
+        return;
+      }
+
+      if (isPlayingAudio) {
+        window.speechSynthesis.cancel();
+        isPlayingAudio = false;
+        updateAudioButtonUI();
+      } else {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(audioTranscriptText);
+        utterance.rate = 0.88;
+        utterance.lang = 'en-US';
+
+        utterance.onend = () => { isPlayingAudio = false; updateAudioButtonUI(); };
+        utterance.onerror = () => { isPlayingAudio = false; updateAudioButtonUI(); };
+
+        window.speechSynthesis.speak(utterance);
+        isPlayingAudio = true;
+        updateAudioButtonUI();
+      }
+    }
+
+    function updateAudioButtonUI() {
+      const btn = document.getElementById('btn-audio-play');
+      const icon = document.getElementById('audio-icon');
+      const label = document.getElementById('audio-btn-text');
+      const status = document.getElementById('audio-status');
+
+      if (isPlayingAudio) {
+        btn.className = "w-full py-3 bg-rose-700 text-white font-semibold rounded-xl shadow-lg transition flex items-center justify-center space-x-2 playing-audio";
+        icon.className = "fa-solid fa-stop";
+        label.textContent = "Stop Audio Playback";
+        status.textContent = "Playing announcement audio... (Tap stop to cancel)";
+        status.className = "text-xs text-rose-400 font-medium italic animate-pulse";
+      } else {
+        btn.className = "w-full py-3 bg-rose-600 hover:bg-rose-500 text-white font-semibold rounded-xl shadow-lg transition flex items-center justify-center space-x-2";
+        icon.className = "fa-solid fa-play";
+        label.textContent = "Listen to Announcement";
+        status.textContent = "Tap button to listen (Audio powered by Speech Engine)";
+        status.className = "text-xs text-slate-400 italic";
+      }
+    }
+
+    function toggleTranscriptViewer() {
+      const box = document.getElementById('transcript-box');
+      const txt = document.getElementById('transcript-toggle-text');
+      if (box.classList.contains('hidden')) {
+        box.classList.remove('hidden');
+        txt.textContent = "Hide Audio Transcript";
+      } else {
+        box.classList.add('hidden');
+        txt.textContent = "Show Audio Transcript (If audio unplayable)";
+      }
+    }
+
+    // VERCEL API BACKEND EVALUATION & PASSCODE VERIFICATION
+    async function calculateResults() {
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+
+      const passcode = document.getElementById('quiz-passcode').value.trim();
+
+      if (!passcode) {
+        alert("Please enter the access passcode before submitting.");
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/grade', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userAnswers, passcode })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert(data.error || "Invalid passcode. Please check with your instructor.");
+          return;
+        }
+
+        gradedResults = data;
+      } catch (err) {
+        alert("Error grading test. Please ensure the Vercel API function is deployed.");
+        return;
+      }
+
+      const { totalScore, scoreGrammar, scoreVocab, scoreReading, scoreListening, levelText, feedbackText } = gradedResults;
+
+      screenQuiz.classList.add('hidden');
+      headerStatus.classList.add('hidden');
+      screenResults.classList.remove('hidden');
+
+      document.getElementById('res-score-num').textContent = totalScore;
+      document.getElementById('res-score-pct').textContent = Math.round((totalScore / 50) * 100);
+
+      document.getElementById('score-grammar-ratio').textContent = `${scoreGrammar} / 15`;
+      document.getElementById('bar-grammar').style.width = `${(scoreGrammar / 15) * 100}%`;
+      document.getElementById('pct-grammar').textContent = `${Math.round((scoreGrammar / 15) * 100)}%`;
+
+      document.getElementById('score-vocab-ratio').textContent = `${scoreVocab} / 15`;
+      document.getElementById('bar-vocab').style.width = `${(scoreVocab / 15) * 100}%`;
+      document.getElementById('pct-vocab').textContent = `${Math.round((scoreVocab / 15) * 100)}%`;
+
+      document.getElementById('score-reading-ratio').textContent = `${scoreReading} / 10`;
+      document.getElementById('bar-reading').style.width = `${(scoreReading / 10) * 100}%`;
+      document.getElementById('pct-reading').textContent = `${Math.round((scoreReading / 10) * 100)}%`;
+
+      document.getElementById('score-listening-ratio').textContent = `${scoreListening} / 10`;
+      document.getElementById('bar-listening').style.width = `${(scoreListening / 10) * 100}%`;
+      document.getElementById('pct-listening').textContent = `${Math.round((scoreListening / 10) * 100)}%`;
+
+      const levelName = document.getElementById('res-level-name');
+      const placementCard = document.getElementById('placement-card');
+      const feedback = document.getElementById('res-teacher-feedback');
+
+      levelName.textContent = levelText;
+      feedback.textContent = feedbackText;
+
+      if (totalScore <= 19) {
+        levelName.className = "text-3xl font-extrabold text-emerald-400 mb-2";
+        placementCard.className = "max-w-md mx-auto p-5 rounded-2xl border mb-6 text-center shadow-lg bg-slate-900/80 border-emerald-500/50";
+      } else if (totalScore <= 35) {
+        levelName.className = "text-3xl font-extrabold text-blue-400 mb-2";
+        placementCard.className = "max-w-md mx-auto p-5 rounded-2xl border mb-6 text-center shadow-lg bg-slate-900/80 border-blue-500/50";
+      } else {
+        levelName.className = "text-3xl font-extrabold text-purple-400 mb-2";
+        placementCard.className = "max-w-md mx-auto p-5 rounded-2xl border mb-6 text-center shadow-lg bg-slate-900/80 border-purple-500/50";
+      }
+
+      renderDetailedSectionBreakdown();
+    }
+
+    function renderDetailedSectionBreakdown() {
+      if (!gradedResults || !gradedResults.items) return;
+
+      const container = document.getElementById('section-breakdown-container');
+      container.innerHTML = '';
+
+      const sections = [
+        { name: "Grammar", color: "indigo", total: 15, icon: "fa-sliders" },
+        { name: "Vocabulary", color: "teal", total: 15, icon: "fa-spell-check" },
+        { name: "Reading", color: "amber", total: 10, icon: "fa-book-open" },
+        { name: "Listening", color: "rose", total: 10, icon: "fa-headphones" }
+      ];
+
+      sections.forEach(sec => {
+        const secItems = gradedResults.items.filter(q => q.sec === sec.name);
+        const incorrectItems = secItems.filter(q => !q.isCorrect);
+        const score = secItems.length - incorrectItems.length;
+        const pct = Math.round((score / sec.total) * 100);
+
+        const missedTopics = [...new Set(incorrectItems.map(q => q.topic))];
+
+        const card = document.createElement('div');
+        card.className = "bg-slate-800/80 border border-slate-700 rounded-2xl p-5 md:p-6 shadow-xl space-y-4";
+
+        card.innerHTML = `
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-700/80 pb-4 gap-2">
+            <div class="flex items-center space-x-3">
+              <div class="p-2.5 rounded-xl bg-${sec.color}-500/10 text-${sec.color}-400 border border-${sec.color}-500/20">
+                <i class="fa-solid ${sec.icon} text-lg"></i>
+              </div>
+              <div>
+                <h4 class="text-lg font-bold text-white">${sec.name} Diagnostic</h4>
+                <p class="text-xs text-slate-400">Tested ${sec.total} diagnostic items</p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-3 bg-slate-900/60 px-4 py-2 rounded-xl border border-slate-700/60 self-start sm:self-auto">
+              <span class="text-xs text-slate-400 font-semibold uppercase">Score:</span>
+              <span class="text-sm font-bold text-white">${score} / ${sec.total}</span>
+              <span class="text-xs font-extrabold px-2 py-0.5 rounded ${pct >= 70 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}">
+                ${pct}%
+              </span>
+            </div>
+          </div>
+
+          <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/60 space-y-2">
+            <div class="flex items-center space-x-2 text-amber-400 text-xs font-bold uppercase tracking-wider">
+              <i class="fa-solid fa-bullseye"></i>
+              <span>Areas to Develop (${sec.name})</span>
+            </div>
+
+            ${missedTopics.length > 0 ? `
+              <p class="text-xs text-slate-300">Based on missed questions, prioritize improving the following core topics:</p>
+              <ul class="space-y-1.5 pt-1">
+                ${missedTopics.map(topic => `
+                  <li class="text-xs text-slate-300 flex items-start space-x-2">
+                    <i class="fa-solid fa-arrow-right text-indigo-400 text-[10px] mt-1"></i>
+                    <span><strong class="text-white">${topic}</strong></span>
+                  </li>
+                `).join('')}
+              </ul>
+            ` : `
+              <p class="text-xs text-emerald-400 font-semibold flex items-center space-x-1 pt-1">
+                <i class="fa-solid fa-circle-check"></i>
+                <span>Mastered all tested competencies in this section! No areas of weakness detected.</span>
+              </p>
+            `}
+          </div>
+
+          <div class="space-y-3">
+            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+              <span>Incorrect Questions (${incorrectItems.length})</span>
+              ${incorrectItems.length === 0 ? '<span class="text-emerald-400 lowercase">100% accurate</span>' : ''}
+            </div>
+
+            ${incorrectItems.length > 0 ? `
+              <div class="space-y-3">
+                ${incorrectItems.map(q => `
+                  <div class="p-3.5 bg-slate-950/70 border border-rose-500/30 rounded-xl text-xs space-y-2">
+                    <div class="flex items-start justify-between">
+                      <span class="font-semibold text-slate-200">
+                        <span class="text-rose-400 font-bold">Q${q.id}.</span> ${q.q}
+                      </span>
+                      <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-slate-800 text-slate-400 border border-slate-700">
+                        ${q.diff}
+                      </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+                      <div class="text-rose-400">
+                        <strong class="text-slate-400">Your Answer:</strong> ${q.userAnsText}
+                      </div>
+                      <div class="text-emerald-400">
+                        <strong class="text-slate-400">Correct Answer:</strong> ${q.correctAnsText}
+                      </div>
+                    </div>
+
+                    <div class="text-slate-400 bg-slate-900/40 p-2 rounded border border-slate-800/80">
+                      <strong class="text-indigo-300">Explanation:</strong> ${q.exp}
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            ` : `
+              <div class="p-3 bg-slate-950/40 border border-slate-800 rounded-xl text-xs text-slate-400 italic text-center">
+                All ${sec.total} questions in ${sec.name} were answered correctly.
+              </div>
+            `}
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function restartQuiz() {
+      currentIdx = 0;
+      userAnswers = new Array(quizData.length).fill(null);
+      bookmarked = new Array(quizData.length).fill(false);
+      gradedResults = null;
+      
+      document.getElementById('student-name').value = '';
+      document.getElementById('student-id').value = '';
+      document.getElementById('quiz-passcode').value = '';
+
+      screenResults.classList.add('hidden');
+      screenWelcome.classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
