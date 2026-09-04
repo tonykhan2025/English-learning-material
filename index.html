@@ -388,6 +388,67 @@
 
     const audioTranscriptText = "Good morning team. Quick update regarding our annual software transition. The legacy client portal will be officially shut down this Friday at midnight. All customer data has already been migrated to our new cloud platform. Beginning next Monday, all support agents must use the new dashboard to record client tickets. If you experience login difficulties, contact IT support immediately at extension 404. Also, remember that mandatory training sessions will be held in Conference Room B tomorrow at 2:00 PM. Thank you for your cooperation.";
 
+    // COMPLETE CLIENT-SIDE ANSWER KEY & EXPLANATIONS (50 ITEMS)
+    const answerKeyData = [
+      // Grammar (1 - 15)
+      { ans: 1, exp: "Third-person singular 'She' requires the present simple verb ending in '-s' (works)." },
+      { ans: 1, exp: "'They' is a plural subject in the past tense, requiring 'weren't' instead of 'wasn't'." },
+      { ans: 0, exp: "The preposition 'on' is used for position on top of a flat surface like a desk." },
+      { ans: 1, exp: "'Can' is the correct modal verb used to ask about ability in English." },
+      { ans: 0, exp: "'Printer' starts with a consonant sound, so it takes the indefinite article 'a'." },
+      { ans: 1, exp: "The phrase 'since last January' indicates an action starting in the past and continuing into the present, requiring Present Perfect Continuous." },
+      { ans: 1, exp: "First conditional structure uses 'if + Present Simple' followed by 'will + base verb'." },
+      { ans: 2, exp: "Future passive voice requires 'will be' + past participle ('signed')." },
+      { ans: 1, exp: "The verb 'suggest' is followed by a gerund (-ing form)." },
+      { ans: 2, exp: "'Whose' is the possessive relative pronoun indicating ownership of the office." },
+      { ans: 2, exp: "Third conditional inversion ('Had we...') requires 'would/would not have' + past participle." },
+      { ans: 1, exp: "Negative adverbials like 'Seldom' placed at the start require subject-auxiliary inversion ('have we seen')." },
+      { ans: 1, exp: "Verbs of request like 'requested that' trigger the subjunctive mood, using base form 'be'." },
+      { ans: 1, exp: "A perfect passive participle clause ('Having been + past participle') shows an action completed prior to the main clause." },
+      { ans: 0, exp: "'Nevertheless' is a conjunctive adverb used to signal contrast between two independent clauses." },
+
+      // Vocabulary (16 - 30)
+      { ans: 0, exp: "'Meeting' is the standard business noun for a workplace gathering to discuss targets." },
+      { ans: 1, exp: "'Email' is the standard digital communication format for invoice inquiries." },
+      { ans: 1, exp: "'PM' designates time past noon/afternoon for end-of-workday deadlines." },
+      { ans: 0, exp: "'Send' is the action verb used for transmitting electronic files." },
+      { ans: 0, exp: "'Central business district' (CBD) is standard commercial terminology." },
+      { ans: 0, exp: "'Collaborate' means to work jointly on an activity or project." },
+      { ans: 0, exp: "'Efficiency' refers to achieving maximum productivity with minimal wasted effort." },
+      { ans: 0, exp: "An 'objective' refers to a specific strategic goal set by leadership." },
+      { ans: 0, exp: "'Restrict' means to limit or bound non-essential spending." },
+      { ans: 0, exp: "A 'promotion' refers to advancing to a higher workplace rank or position." },
+      { ans: 0, exp: "'Mitigate' means to make less severe or diminish potential financial risk." },
+      { ans: 0, exp: "'Lucrative' means producing a high level of profit or return." },
+      { ans: 0, exp: "'Consensus' means reaching a collective or unanimous agreement." },
+      { ans: 0, exp: "'Paramount' means of supreme importance." },
+      { ans: 0, exp: "'Facilitate' means to make a process easier or smoother." },
+
+      // Reading Comprehension (31 - 40)
+      { ans: 1, exp: "The opening paragraph states the email outlines Q3 priorities and software upgrades." },
+      { ans: 2, exp: "Paragraph 2 explicitly asks team members to confirm deliverables 'by Friday at 5:00 PM'." },
+      { ans: 1, exp: "Paragraph 3 states: 'We will host a brief sync call this Thursday at 10:00 AM'." },
+      { ans: 2, exp: "Paragraph 2 notes: 'Next Monday, the engineering team will begin integration testing.'" },
+      { ans: 1, exp: "Paragraph 2 notes: 'Our design team has already drafted the preliminary interface updates.'" },
+      { ans: 1, exp: "'Preliminary' means existing or done in preparation for the main task; initial." },
+      { ans: 1, exp: "Paragraph 3 explicitly states the sync call is 'to address any immediate concerns or resource constraints'." },
+      { ans: 0, exp: "Paragraph 1 explicitly links the upgrade to 'Following last week’s client review'." },
+      { ans: 1, exp: "The email uses clear instructions, actionable deadlines, and direct professional register." },
+      { ans: 0, exp: "Cross-team mentions (design, engineering, sync calls, deadlines) show success requires strict coordination." },
+
+      // Listening Comprehension (41 - 50)
+      { ans: 1, exp: "The audio states: 'The legacy client portal will be officially shut down this Friday at midnight.'" },
+      { ans: 0, exp: "The audio notes: 'mandatory training sessions will be held in Conference Room B'." },
+      { ans: 2, exp: "The audio specifies training will occur 'tomorrow at 2:00 PM'." },
+      { ans: 1, exp: "The speaker states: 'Beginning next Monday, all support agents must use the new dashboard to record client tickets.'" },
+      { ans: 1, exp: "The audio confirms: 'All customer data has already been migrated to our new cloud platform.'" },
+      { ans: 1, exp: "The speaker states: 'contact IT support immediately at extension 404.'" },
+      { ans: 1, exp: "The main focus is guiding staff on shutdown deadlines, dashboard use, IT support, and training." },
+      { ans: 1, exp: "Since the new dashboard is required Monday, missing training will cause operational difficulties." },
+      { ans: 1, exp: "The speaker's demeanor is professional, instructional, and structured." },
+      { ans: 2, exp: "The past tense 'has already been migrated' indicates data migration occurred prior to the announcement." }
+    ];
+
     // APP STATE
     let currentIdx = 0;
     let userAnswers = new Array(quizData.length).fill(null);
@@ -598,7 +659,7 @@
       }
     }
 
-    // VERCEL API BACKEND EVALUATION & PASSCODE VERIFICATION
+    // CALCULATE RESULTS (API WITH STANDALONE CLIENT-SIDE FALLBACK)
     async function calculateResults() {
       if ('speechSynthesis' in window) window.speechSynthesis.cancel();
 
@@ -616,17 +677,13 @@
           body: JSON.stringify({ userAnswers, passcode })
         });
 
-        const data = await response.json();
-
-        if (!response.ok) {
-          alert(data.error || "Invalid passcode. Please check with your instructor.");
-          return;
+        if (response.ok) {
+          gradedResults = await response.json();
+        } else {
+          gradedResults = evaluateClientSide();
         }
-
-        gradedResults = data;
       } catch (err) {
-        alert("Error grading test. Please ensure the Vercel API function is deployed.");
-        return;
+        gradedResults = evaluateClientSide();
       }
 
       const { totalScore, scoreGrammar, scoreVocab, scoreReading, scoreListening, levelText, feedbackText } = gradedResults;
@@ -675,6 +732,67 @@
       renderDetailedSectionBreakdown();
     }
 
+    // CLIENT-SIDE EVALUATION ENGINE (FOR GITHUB PAGES)
+    function evaluateClientSide() {
+      let scoreGrammar = 0;
+      let scoreVocab = 0;
+      let scoreReading = 0;
+      let scoreListening = 0;
+
+      const items = quizData.map((q, idx) => {
+        const key = answerKeyData[idx];
+        const userAns = userAnswers[idx];
+        const isCorrect = userAns === key.ans;
+
+        if (isCorrect) {
+          if (q.sec === "Grammar") scoreGrammar++;
+          else if (q.sec === "Vocabulary") scoreVocab++;
+          else if (q.sec === "Reading") scoreReading++;
+          else if (q.sec === "Listening") scoreListening++;
+        }
+
+        return {
+          id: q.id,
+          sec: q.sec,
+          diff: q.diff,
+          topic: q.topic,
+          q: q.q,
+          userAnsText: userAns !== null ? q.opts[userAns] : "Unanswered",
+          correctAnsText: q.opts[key.ans],
+          isCorrect: isCorrect,
+          exp: key.exp
+        };
+      });
+
+      const totalScore = scoreGrammar + scoreVocab + scoreReading + scoreListening;
+
+      let levelText = "";
+      let feedbackText = "";
+
+      if (totalScore <= 19) {
+        levelText = "Beginner (CEFR A1–A2)";
+        feedbackText = "You demonstrated a foundational understanding of basic English structure and daily vocabulary. Focus on strengthening fundamental grammar tenses, expanding everyday workplace vocabulary, and practicing core listening comprehension.";
+      } else if (totalScore <= 35) {
+        levelText = "Intermediate (CEFR B1–B2)";
+        feedbackText = "You show solid competence in practical English across business contexts. To reach an advanced level, work on mastering complex grammar inversion, nuanced vocabulary, fast auditory information retention, and dense text inference.";
+      } else {
+        levelText = "Advanced (CEFR C1–C2)";
+        feedbackText = "Outstanding performance! You display high proficiency in complex grammar, strategic business vocabulary, and detailed auditory and reading comprehension suitable for executive and professional environments.";
+      }
+
+      return {
+        totalScore,
+        scoreGrammar,
+        scoreVocab,
+        scoreReading,
+        scoreListening,
+        levelText,
+        feedbackText,
+        items
+      };
+    }
+
+    // RENDER DETAILED SECTION BREAKDOWN
     function renderDetailedSectionBreakdown() {
       if (!gradedResults || !gradedResults.items) return;
 
@@ -682,10 +800,10 @@
       container.innerHTML = '';
 
       const sections = [
-        { name: "Grammar", color: "indigo", total: 15, icon: "fa-sliders" },
-        { name: "Vocabulary", color: "teal", total: 15, icon: "fa-spell-check" },
-        { name: "Reading", color: "amber", total: 10, icon: "fa-book-open" },
-        { name: "Listening", color: "rose", total: 10, icon: "fa-headphones" }
+        { name: "Grammar", icon: "fa-sliders", total: 15, bgBg: "bg-indigo-500/10", textColor: "text-indigo-400", borderColor: "border-indigo-500/20" },
+        { name: "Vocabulary", icon: "fa-spell-check", total: 15, bgBg: "bg-teal-500/10", textColor: "text-teal-400", borderColor: "border-teal-500/20" },
+        { name: "Reading", icon: "fa-book-open", total: 10, bgBg: "bg-amber-500/10", textColor: "text-amber-400", borderColor: "border-amber-500/20" },
+        { name: "Listening", icon: "fa-headphones", total: 10, bgBg: "bg-rose-500/10", textColor: "text-rose-400", borderColor: "border-rose-500/20" }
       ];
 
       sections.forEach(sec => {
@@ -702,7 +820,7 @@
         card.innerHTML = `
           <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-700/80 pb-4 gap-2">
             <div class="flex items-center space-x-3">
-              <div class="p-2.5 rounded-xl bg-${sec.color}-500/10 text-${sec.color}-400 border border-${sec.color}-500/20">
+              <div class="p-2.5 rounded-xl ${sec.bgBg} ${sec.textColor} border ${sec.borderColor}">
                 <i class="fa-solid ${sec.icon} text-lg"></i>
               </div>
               <div>
@@ -726,7 +844,7 @@
             </div>
 
             ${missedTopics.length > 0 ? `
-              <p class="text-xs text-slate-300">Based on missed questions, prioritize improving the following core topics:</p>
+              <p class="text-xs text-slate-300">Based on missed questions, prioritize improving the following core competencies:</p>
               <ul class="space-y-1.5 pt-1">
                 ${missedTopics.map(topic => `
                   <li class="text-xs text-slate-300 flex items-start space-x-2">
